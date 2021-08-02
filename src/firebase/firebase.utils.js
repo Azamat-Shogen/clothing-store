@@ -14,6 +14,35 @@ const config = {
     measurementId: process.env.REACT_APP_MEASUREMENT_ID
 }
 
+export const createUserProfileDocument = async (userAuth, additionalData) => {
+  if(!userAuth)// if null ( there is no user signed in
+    return ; // dont do anything / exit from this function
+
+  const userRef = firestore.doc(`users/${userAuth.uid}`)
+    const snapShot = await userRef.get();
+
+  if(!snapShot.exists){
+      // if the snapShot doesnt exist create
+      const { displayName, email } = userAuth;
+      const createdAt = new Date();
+
+      try {
+          await userRef.set({ // create user
+              displayName,
+              email,
+              createdAt,
+              ...additionalData
+          })
+      } catch (error) {
+         console.log('error creating user ', error.message())
+      }
+  }
+
+  // this function always returns a userRef
+    console.log(userRef)
+    return userRef;
+}
+
 
 firebase.initializeApp(config);
 
